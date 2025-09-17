@@ -69,6 +69,19 @@
                 <a href="#treks" class="nav-link text-gray-600 hover:text-green-600 transition-colors">Treks</a>
                 <a href="#community" class="nav-link text-gray-600 hover:text-green-600 transition-colors">Community</a>
                 <a href="#contact" class="nav-link text-gray-600 hover:text-green-600 transition-colors">Contact</a>
+                <!-- Add NGO Area dropdown -->
+                <div class="relative group">
+                    <button class="nav-link text-gray-600 hover:text-green-600 transition-colors flex items-center">
+                        NGO Area
+                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="absolute left-0 mt-2 w-56 bg-white rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50">
+                        <a href="#trek-difficulties" class="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-700">Trek Difficulties</a>
+                        <a href="#ngo-initiatives" class="block px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-700">NGO Initiatives</a>
+                    </div>
+                </div>
             </nav>
             <div class="flex items-center space-x-4">
                 <button id="ai-assistant-btn" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors flex items-center shadow">
@@ -87,6 +100,9 @@
             <a href="#treks" class="nav-link-mobile block py-2 text-gray-600 hover:text-green-600">Treks</a>
             <a href="#community" class="nav-link-mobile block py-2 text-gray-600 hover:text-green-600">Community</a>
             <a href="#contact" class="nav-link-mobile block py-2 text-gray-600 hover:text-green-600">Contact</a>
+            <!-- Add NGO Area links -->
+            <a href="#trek-difficulties" class="nav-link-mobile block py-2 text-gray-600 hover:text-green-600">Trek Difficulties</a>
+            <a href="#ngo-initiatives" class="nav-link-mobile block py-2 text-gray-600 hover:text-green-600">NGO Initiatives</a>
         </div>
     </header>
 
@@ -410,6 +426,54 @@
                 </div>
             </div>
         </section>
+
+        <!-- Trek Difficulties Section -->
+        <section id="trek-difficulties" class="py-20 bg-gray-100">
+            <div class="container mx-auto px-6 max-w-3xl">
+                <h2 class="text-3xl font-bold text-center mb-8">Trek Difficulties</h2>
+                <p class="text-gray-600 text-center mb-8">Share the challenges you encountered during your trek to help others prepare better.</p>
+                <form id="difficulty-form" class="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <div class="mb-4">
+                        <label for="difficulty-location" class="block text-sm font-medium text-gray-700">Trek Location</label>
+                        <input type="text" id="difficulty-location" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="difficulty-description" class="block text-sm font-medium text-gray-700">Describe the Difficulty</label>
+                        <textarea id="difficulty-description" rows="4" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700">Submit</button>
+                </form>
+                <div id="difficulties-list" class="space-y-4">
+                    <!-- Difficulties will be loaded here dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- NGO Initiatives Section -->
+        <section id="ngo-initiatives" class="py-20 bg-white">
+            <div class="container mx-auto px-6 max-w-3xl">
+                <h2 class="text-3xl font-bold text-center mb-8">NGO Initiatives</h2>
+                <p class="text-gray-600 text-center mb-8">Discover upcoming environmental initiatives and cleanups in your area.</p>
+                <form id="ngo-form" class="bg-gray-50 p-6 rounded-lg shadow-md mb-8">
+                    <div class="mb-4">
+                        <label for="ngo-name" class="block text-sm font-medium text-gray-700">NGO Name</label>
+                        <input type="text" id="ngo-name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="initiative-location" class="block text-sm font-medium text-gray-700">Location</label>
+                        <input type="text" id="initiative-location" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="initiative-description" class="block text-sm font-medium text-gray-700">Initiative Description</label>
+                        <textarea id="initiative-description" rows="4" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Post Initiative</button>
+                </form>
+                <div id="initiatives-list" class="space-y-4">
+                    <!-- Initiatives will be loaded here dynamically -->
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
@@ -523,8 +587,11 @@
         // --- INITIALIZATION ---
         lucide.createIcons();
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('TrekMate initializing...');
             loadGoogleMapsScript();
             loadCommunityContent();
+            loadDifficulties();
+            loadNGOInitiatives();
         });
 
         // --- UI Interactions & Navigation ---
@@ -596,17 +663,26 @@
         // Function to FETCH data from Supabase
         async function fetchFromSupabase(tableName) {
             if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=*&order=created_at.desc`, {
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                },
-            });
-            if (!response.ok) {
-                console.error(`Failed to fetch from ${tableName}`);
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=*&order=created_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Accept': 'application/json'
+                    },
+                });
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error(`Failed to fetch from ${tableName}:`, res.status, text);
+                    return [];
+                }
+                const data = await res.json();
+                console.debug(`Fetched ${data.length} rows from ${tableName}`);
+                return data;
+            } catch (err) {
+                console.error(`Error fetching ${tableName}:`, err);
                 return [];
             }
-            return response.json();
         }
 
         // Function to SUBMIT data to Supabase
@@ -616,21 +692,31 @@
                  showToast("Backend not configured. Check console.", false);
                  return;
             }
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}`, {
-                method: 'POST',
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=minimal',
-                },
-                body: JSON.stringify(data),
-            });
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}`, {
+                    method: 'POST',
+                    headers:
+                     {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal',
+                    },
+                    body: JSON.stringify(data),
+                });
 
-            if (!response.ok) {
-                const error = await response.json();
-                console.error('Supabase Error:', error);
-                throw new Error(`Supabase error: ${error.message}`);
+                if (!response.ok) {
+                    // Try reading JSON, otherwise text
+                    let errBody;
+                    try { errBody = await response.json(); } catch { errBody = await response.text(); }
+                    console.error('Supabase Error:', response.status, errBody);
+                    throw new Error(`Supabase error: ${response.status} - ${JSON.stringify(errBody)}`);
+                }
+
+                console.debug(`Inserted into ${tableName}:`, data);
+            } catch (error) {
+                console.error('supabaseSubmit error:', error);
+                throw error;
             }
         }
         
@@ -678,23 +764,113 @@
             }
         }
 
-        // --- Form Submission Event Listeners ---
-        document.getElementById('contact-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            try {
-                await supabaseSubmit('contacts', {
-                    name: form['contact-name'].value,
-                    email: form['contact-email'].value,
-                    message: form['contact-message'].value,
+        // --- NGO Area Data Handling ---
+        async function loadDifficulties() {
+            const container = document.getElementById('difficulties-list');
+            container.innerHTML = '<p class="text-gray-500 text-center">Loading difficulties...</p>';
+            const difficulties = await fetchFromSupabase('trek_issues'); // Corrected table name
+            container.innerHTML = '';
+            if (difficulties.length > 0) {
+                difficulties.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-4 rounded-lg shadow';
+                    card.innerHTML = `
+                        <p class="font-semibold text-gray-800">${item.location}</p>
+                        <p class="text-gray-600">${item.message}</p> 
+                    `;
+                    container.appendChild(card);
                 });
-                showToast('Message sent successfully!');
-                form.reset();
-            } catch (error) {
-                console.error('Contact form submission error:', error);
-                showToast('Failed to send message.', false);
+            } else {
+                container.innerHTML = '<p class="text-gray-500 text-center">No difficulties reported yet.</p>';
             }
-        });
+        }
+
+        async function loadNGOInitiatives() {
+            const container = document.getElementById('initiatives-list');
+            container.innerHTML = '<p class="text-gray-500 text-center">Loading initiatives...</p>';
+            const initiatives = await fetchFromSupabase('ngo_activities');
+            container.innerHTML = '';
+            if (initiatives.length > 0) {
+                initiatives.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-gray-50 p-4 rounded-lg shadow';
+                    card.innerHTML = `
+                        <p class="font-bold text-blue-600">${item.ngo_name}</p>
+                        <p class="font-semibold text-gray-800">${item.location}</p>
+                        <p class="text-gray-600">${item.description}</p>
+                    `;
+                    container.appendChild(card);
+                });
+            } else {
+                container.innerHTML = '<p class="text-gray-500 text-center">No initiatives posted yet.</p>';
+            }
+        }
+
+        // --- Form Submission Event Listeners ---
+        // Attach listeners defensively (avoid runtime errors if element missing)
+        const difficultyForm = document.getElementById('difficulty-form');
+        if (difficultyForm) {
+            difficultyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                try {
+                    await supabaseSubmit('trek_issues', {
+                        location: form['difficulty-location'].value,
+                        message: form['difficulty-description'].value,
+                        name: 'Anonymous'
+                    });
+                    showToast('Difficulty submitted successfully!');
+                    form.reset();
+                    loadDifficulties();
+                } catch (error) {
+                    console.error('Difficulty form submission error:', error);
+                    showToast('Failed to submit difficulty.', false);
+                }
+            });
+        } else console.warn('difficulty-form not found');
+
+        const ngoForm = document.getElementById('ngo-form');
+        if (ngoForm) {
+            ngoForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const dataToSubmit = { 
+                    ngo_name: form['ngo-name'].value,
+                    location: form['initiative-location'].value,
+                    description: form['initiative-description'].value,
+                };
+                console.debug('Submitting NGO initiative:', dataToSubmit);
+                try {
+                    await supabaseSubmit('ngo_activities', dataToSubmit);
+                    showToast('Initiative posted successfully!');
+                    form.reset();
+                    loadNGOInitiatives();
+                } catch (error) {
+                    console.error('NGO form submission error:', error);
+                    showToast('Failed to post initiative. Check console for details.', false);
+                }
+            });
+        } else console.warn('ngo-form not found');
+
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                try {
+                    await supabaseSubmit('contacts', {
+                        name: form['contact-name'].value,
+                        email: form['contact-email'].value,
+                        message: form['contact-message'].value,
+                    });
+                    showToast('Message sent successfully!');
+                    form.reset();
+                } catch (error) {
+                    console.error('Contact form submission error:', error);
+                    showToast('Failed to send message.', false);
+                }
+            });
+        } else console.warn('contact-form not found');
 
         document.getElementById('feedback-form').addEventListener('submit', async (e) => {
             e.preventDefault();
